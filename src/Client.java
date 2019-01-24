@@ -1,5 +1,6 @@
 import java.io.*;
 import java.net.Socket;
+import java.util.Scanner;
 
 public class Client {
 
@@ -14,7 +15,11 @@ public class Client {
             OutputStream outToServer = client.getOutputStream();
             DataOutputStream out = new DataOutputStream(outToServer);
 
-            out.writeUTF("Hello from " + client.getLocalSocketAddress());
+            Scanner sc = new Scanner(System.in);
+
+            String s = sc.nextLine();
+
+            out.writeUTF("Hello from " + client.getLocalSocketAddress() + " " + s);
             InputStream inFromServer = client.getInputStream();
             DataInputStream in = new DataInputStream(inFromServer);
 

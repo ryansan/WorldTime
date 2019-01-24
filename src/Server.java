@@ -19,10 +19,13 @@ public class Server extends Thread {
                 System.out.println("Just connected to " + server.getRemoteSocketAddress());
                 DataInputStream in = new DataInputStream(server.getInputStream());
 
-                System.out.println(in.readUTF());
+                String s = in.readUTF();
+
+                s = s.toUpperCase();
+                System.out.println("Message from client: " + s);
+
                 DataOutputStream out = new DataOutputStream(server.getOutputStream());
-                out.writeUTF("Thank you for connecting to " + server.getLocalSocketAddress()
-                        + "\nGoodbye! \"Rej er gando\"");
+                out.writeUTF(s);
 
                 server.close();
 
