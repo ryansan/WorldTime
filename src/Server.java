@@ -33,15 +33,14 @@ public class Server extends Thread {
 
                 DataOutputStream out = new DataOutputStream(server.getOutputStream());
                 out.writeUTF(time);
+                System.out.println(time);
 
                 server.close();
 
             } catch (SocketTimeoutException s) {
                 System.out.println("Socket timed out!");
-                break;
             } catch (IOException e) {
                 e.printStackTrace();
-                break;
             }
         }
     }
@@ -73,13 +72,33 @@ public class Server extends Thread {
         }
         System.out.println(doc.title());
 
-        Elements elements = doc.select("div.gsrt vk_bk dDoNo");
-        System.out.println(elements.toString());
+//        Elements elements = null;
+//        try {
+//             elements = doc.select("div.gsrt vk_bk dDoNo");
+//        }catch (NullPointerException n){
+//            System.out.println("funka ike");
+//            return "fant ikke";
+//        }
+//
+//        if(!elements.hasText()){
+//            System.out.println("funka ike");
+//            return "fant ikke";
+//        }
+//
+//        System.out.println(elements.toString());
 
         Element contentDiv = doc.select("div[class=gsrt vk_bk dDoNo]").first();
-        String text=contentDiv.getElementsByTag("div").text();
+
+        if(contentDiv == null){
+            System.out.println("funka ikke");
+            return "fant ikke";
+        }
+
+        String text = contentDiv.getElementsByTag("div").text();
         System.out.println("t†");
         System.out.println(text);
+
+
 
         return text;
     }
