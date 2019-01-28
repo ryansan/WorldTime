@@ -26,6 +26,9 @@ public class Client {
 
             //Get from server
             System.out.println("Server says " + in.readUTF());
+
+
+            //Close port
             client.close();
         } catch (IOException e) {
             e.printStackTrace();
