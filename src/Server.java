@@ -5,44 +5,73 @@ import org.jsoup.select.Elements;
 
 import java.net.*;
 import java.io.*;
+import java.util.concurrent.Executor;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 public class Server extends Thread {
     private ServerSocket serverSocket;
+    private final ExecutorService pool;
 
     public Server(int port) throws IOException {
         serverSocket = new ServerSocket(port);
-        serverSocket.setSoTimeout(10000);
+        serverSocket.setSoTimeout(10000000);
+        pool = Executors.newFixedThreadPool(20);
     }
 
-    public void run() {
-        while(true) {
+    class Handler implements Runnable {
+        private final Socket socket;
+        Handler(Socket socket) {
+            this.socket = socket;
+        }
+
+        public void run() {
+            // read and service request on socket
             try {
                 System.out.println("Waiting for client on port " +
                         serverSocket.getLocalPort() + "...");
-                Socket server = serverSocket.accept();
-               // server.setSoTimeout(20000000);
+                //Socket server = serverSocket.accept();
+                // server.setSoTimeout(20000000);
 
-                System.out.println("Just connected to " + server.getRemoteSocketAddress());
-                DataInputStream in = new DataInputStream(server.getInputStream());
+                System.out.println("Just connected to " + socket.getRemoteSocketAddress());
+                DataInputStream in = new DataInputStream(socket.getInputStream());
 
                 //Get from user
                 String s = in.readUTF();
                 System.out.println("Get from this place: " + s);
 
+                if(s.equals("oslo")){
+                    Thread.sleep(5000);
+                }
+
                 //Get time
                 String time = getTime(s);
 
+
+
                 //Send to client
-                DataOutputStream out = new DataOutputStream(server.getOutputStream());
+                DataOutputStream out = new DataOutputStream(socket.getOutputStream());
                 out.writeUTF(time);
                 System.out.println(time);
 
                 //Close server
-                server.close();
+                socket.close();
             } catch (SocketTimeoutException s) {
                 System.out.println("Socket timed out!");
+            } catch (IOException e) {
+                e.printStackTrace();
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+        }
+    }
+
+    public void run() {
+        while(true) {
+            try {
+                pool.execute(new Handler(serverSocket.accept()));
             } catch (IOException e) {
                 e.printStackTrace();
             }
@@ -50,6 +79,7 @@ public class Server extends Thread {
     }
 
     public static void main(String [] args) {
+
         int port = 5555;
         try {
             Thread t = new Server(port);
@@ -115,6 +145,8 @@ public class Server extends Thread {
         matcher.find();
 
 
+
+
         //System.out.println("Funnet " + matcher.group());
         //System.out.println("Index; " + matcher.start() + " - "+ matcher.end());
 
@@ -122,8 +154,11 @@ public class Server extends Thread {
         String time = "";
 
         //Add next 5 chars after end of match to save time in variable time
+        try{
         for(int i = matcher.end(); i < matcher.end()+5;i++){
             time += stringBuilderForHTML.charAt(i);
+        } } catch (IllegalStateException e){
+            return "Couldn't find time for " + inputString;
         }
 
         return time;
@@ -154,7 +189,6 @@ public class Server extends Thread {
         }
 
         String text = contentDiv.getElementsByTag("div").text();
-        System.out.println("t†");
         System.out.println(text);
 
 
