@@ -32,8 +32,7 @@ public class Server extends Thread {
             try {
                 System.out.println("Waiting for client on port " +
                         serverSocket.getLocalPort() + "...");
-                //Socket server = serverSocket.accept();
-                // server.setSoTimeout(20000000);
+
 
                 System.out.println("Just connected to " + socket.getRemoteSocketAddress());
                 DataInputStream in = new DataInputStream(socket.getInputStream());
@@ -47,7 +46,7 @@ public class Server extends Thread {
                 }
 
                 //Get time
-                String time = getTime(s);
+                String time = getTimeJSoup(s);
 
 
 
@@ -119,6 +118,7 @@ public class Server extends Thread {
 
             while ((line=input.readLine()) != null) {
                 stringBuilderForHTML.append(line);
+                System.out.println(line);
             }
         } catch (IOException e) {
             e.printStackTrace();
@@ -144,20 +144,37 @@ public class Server extends Thread {
         //Check for match
         matcher.find();
 
-
-
-
         //System.out.println("Funnet " + matcher.group());
         //System.out.println("Index; " + matcher.start() + " - "+ matcher.end());
 
         //String to store time
         String time = "";
+        try {
+            for (int i = matcher.end()+38; i < matcher.end()+49; i++) {
+                if (stringBuilderForHTML.charAt(i) == ',') {
+                    break;
+                } else {
+                    time += stringBuilderForHTML.charAt(i);
+                }
+            }
 
-        //Add next 5 chars after end of match to save time in variable time
-        try{
-        for(int i = matcher.end(); i < matcher.end()+5;i++){
-            time += stringBuilderForHTML.charAt(i);
-        } } catch (IllegalStateException e){
+            time += ", ";
+
+
+            for (int i = matcher.end()+79; i < matcher.end()+96; i++) {
+                if (stringBuilderForHTML.charAt(i) == '<') {
+                    break;
+                } else {
+                    time += stringBuilderForHTML.charAt(i);
+                }
+            }
+
+            time += " ";
+
+            for(int i = matcher.end(); i < matcher.end()+5;i++){
+                time += stringBuilderForHTML.charAt(i);
+            }
+        } catch (IllegalStateException e){
             return "Couldn't find time for " + inputString;
         }
 
@@ -166,14 +183,12 @@ public class Server extends Thread {
 
     public static String getTimeJSoup(String s){
 
-        String s1 = "http://google.com/search?&rls=en&q=";
-        String user = s + " time";
+        String userURL = "http://google.com/search?&rls=en&q="+s+"+time";
 
-        String urlDenne = s1+user;
 
         Document doc = null;
         try {
-            doc = Jsoup.connect(urlDenne).get();
+            doc = Jsoup.connect(userURL).get();
 
         } catch (IOException e) {
             e.printStackTrace();
@@ -189,10 +204,16 @@ public class Server extends Thread {
         }
 
         String text = contentDiv.getElementsByTag("div").text();
-        System.out.println(text);
+        //System.out.println(text);
 
+        Element contentDiv2 = doc.select("div[class=vk_gy vk_sh]").first();
+
+        String text2 = contentDiv2.getElementsByTag("div").text();
+
+        System.out.println(text + " " + text2 + " ");
 
 
         return text;
     }
 }
+
