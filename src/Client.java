@@ -5,7 +5,7 @@ import java.util.Scanner;
 public class Client {
 
     public static void main(String[] args){
-        String serverName = "10.253.28.159";
+        String serverName = "10.253.15.229";
         int port = 5555;
         try{
             System.out.println("Connecting to " + serverName + " on port " + port);

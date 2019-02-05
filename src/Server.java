@@ -210,10 +210,9 @@ public class Server extends Thread {
 
         String text2 = contentDiv2.getElementsByTag("div").text();
 
-        System.out.println(text + " " + text2 + " ");
+        String output = text + " " + text2;
 
-
-        return text;
+        return output;
     }
 }
 
